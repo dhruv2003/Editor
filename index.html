@@ -10,13 +10,12 @@
 <body>
     <!-- Create the editor container -->
     <div id="editor">
-        <h2>Quill Editor</h2>
-        <p>Try typing here!</p>
-        <p>Some initial <strong>bold</strong> text</p>
+        <h2></h2>
+        <p></p>
         <p><br /></p>
     </div>
-<!-- 
-    <div id="editor1">
+
+    <!-- <div id="editor1">
         <h2>Quill Editor</h2>
         <p>Try typing here!</p>
         <p>Some initial <strong>bold</strong> text</p>
@@ -28,18 +27,27 @@
 
     <!-- Initialize Quill editor -->
     <script>
-        // Get all elements you want to convert to editors
-        const editorElements = ['#editor', '#editor1'];
-        
-        // Initialize Quill for all editor elements
-        const editors = editorElements.map(selector => {
-            return new Quill(selector, {
-                theme: 'snow'
-            });
-        });
-        
-        // Now you can access individual editors from the editors array
-        // editors[0] is the first editor, editors[1] is the second, etc.
-    </script>
+  // Get docId from query string
+  const urlParams = new URLSearchParams(window.location.search);
+  const docId = urlParams.get("docId") || "default";
+
+  const quill = new Quill('#editor', {
+    theme: 'snow'
+  });
+
+  // Load from localStorage
+  const saved = localStorage.getItem(`quill-content-${docId}`);
+  if (saved) {
+    quill.setContents(JSON.parse(saved));
+  }
+
+  // Auto-save every 5 seconds
+  setInterval(() => {
+    const data = quill.getContents();
+    localStorage.setItem(`quill-content-${docId}`, JSON.stringify(data));
+  }, 5000);
+</script>
+
+
 </body>
 </html>
