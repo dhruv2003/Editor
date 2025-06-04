@@ -24,26 +24,48 @@
 
     <!-- Initialize Quill editor -->
     <script>
-  // Get docId from query string
-  const urlParams = new URLSearchParams(window.location.search);
-  const docId = urlParams.get("docId") || "default";
+      // Get docId from query string
+      const urlParams = new URLSearchParams(window.location.search);
+      const docId = urlParams.get("docId") || urlParams.get("docid") || "default";
+      console.log("Using document ID:", docId); // Add debug output
 
-  const quill = new Quill('#editor', {
-    theme: 'snow'
-  });
+      // Create a blank editor first
+      const quill = new Quill('#editor', {
+        theme: 'snow'
+      });
 
-  // Load from localStorage
-  const saved = localStorage.getItem(`quill-content-${docId}`);
-  if (saved) {
-    quill.setContents(JSON.parse(saved));
-  }
+      // Load from localStorage
+      const saved = localStorage.getItem(`quill-content-${docId}`);
+      if (saved) {
+        try {
+          // Parse the saved content
+          const parsedContent = JSON.parse(saved);
+          // Set the content - checking if it's a Delta object or HTML string
+          if (parsedContent.ops) {
+            quill.setContents(parsedContent, 'silent');
+          } else {
+            quill.clipboard.dangerouslyPasteHTML(parsedContent);
+          }
+          console.log(`Loaded content for docId: ${docId}`);
+        } catch (e) {
+          console.error('Error loading saved content:', e);
+        }
+      } else {
+        // Set default content for new documents
+        quill.setText(`This is a new document (${docId})`);
+      }
 
-  // Auto-save every 5 seconds
-  setInterval(() => {
-    const data = quill.getContents();
-    localStorage.setItem(`quill-content-${docId}`, JSON.stringify(data));
-  }, 5000);
-</script>
+      // Auto-save every 5 seconds
+      setInterval(() => {
+        const content = quill.getContents();
+        localStorage.setItem(`quill-content-${docId}`, JSON.stringify(content));
+        console.log(`Saved content for docId: ${docId}`);
+      }, 5000);
+
+      // Debug helper - log all localStorage keys to help troubleshoot
+      console.log('All localStorage keys:', 
+        Object.keys(localStorage).filter(key => key.startsWith('quill-content-')));
+    </script>
 
 
 </body>

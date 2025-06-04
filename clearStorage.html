@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clear Editor Storage</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .results {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Clear Editor Storage</h1>
+    
+    <p>Use this utility to clear all Quill editor content from localStorage.</p>
+    
+    <div>
+        <button id="showItems">Show Stored Items</button>
+        <button id="clearAll">Clear All Items</button>
+    </div>
+    
+    <div class="results" id="results"></div>
+    
+    <script>
+        document.getElementById('showItems').addEventListener('click', function() {
+            const items = Object.keys(localStorage)
+                .filter(key => key.startsWith('quill-content-'))
+                .map(key => {
+                    return `<li>${key}: ${localStorage.getItem(key).substring(0, 50)}...</li>`;
+                }).join('');
+                
+            document.getElementById('results').innerHTML = 
+                items ? `<h3>Stored Items:</h3><ul>${items}</ul>` : 'No items found.';
+        });
+        
+        document.getElementById('clearAll').addEventListener('click', function() {
+            const count = Object.keys(localStorage)
+                .filter(key => key.startsWith('quill-content-')).length;
+                
+            Object.keys(localStorage)
+                .filter(key => key.startsWith('quill-content-'))
+                .forEach(key => localStorage.removeItem(key));
+                
+            document.getElementById('results').innerHTML = `Cleared ${count} items from storage.`;
+        });
+    </script>
+</body>
+</html>
