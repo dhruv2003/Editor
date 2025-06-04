@@ -6,6 +6,26 @@
     <title>Editor Test</title>
     <!-- Include stylesheet -->
     <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        #editor {
+            flex-grow: 1;
+            overflow-y: auto;
+            min-height: 200px;
+        }
+        .ql-toolbar {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            background: white;
+        }
+    </style>
 </head>
 <body>
     <!-- Create the editor container -->
@@ -60,8 +80,45 @@
         const content = quill.getContents();
         localStorage.setItem(`quill-content-${docId}`, JSON.stringify(content));
         console.log(`Saved content for docId: ${docId}`);
+        
+        // Send a message to parent frame about the save (if in an iframe)
+        try {
+          if (window.parent !== window) {
+            window.parent.postMessage({
+              type: 'QUILL_SAVE',
+              docId: docId,
+              timestamp: new Date().toISOString()
+            }, '*');
+          }
+        } catch (e) {
+          console.log('Could not communicate with parent frame');
+        }
       }, 5000);
 
+      // Listen for messages from parent frame
+      window.addEventListener('message', function(event) {
+        if (event.data && event.data.type === 'QUILL_COMMAND') {
+          if (event.data.command === 'save') {
+            // Force a save
+            const content = quill.getContents();
+            localStorage.setItem(`quill-content-${docId}`, JSON.stringify(content));
+            console.log('Manual save triggered by parent');
+          }
+          else if (event.data.command === 'getContent') {
+            // Send content to parent
+            try {
+              window.parent.postMessage({
+                type: 'QUILL_CONTENT',
+                docId: docId,
+                content: quill.getContents()
+              }, '*');
+            } catch (e) {
+              console.error('Error sending content to parent', e);
+            }
+          }
+        }
+      });
+      
       // Debug helper - log all localStorage keys to help troubleshoot
       console.log('All localStorage keys:', 
         Object.keys(localStorage).filter(key => key.startsWith('quill-content-')));
