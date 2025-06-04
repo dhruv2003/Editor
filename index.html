@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editor Test</title>
+    <!-- Include stylesheet -->
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
+</head>
+<body>
+    <!-- Create the editor container -->
+    <div id="editor">
+        <h2>Quill Editor</h2>
+        <p>Try typing here!</p>
+        <p>Some initial <strong>bold</strong> text</p>
+        <p><br /></p>
+    </div>
+
+    <div id="editor1">
+        <h2>Quill Editor</h2>
+        <p>Try typing here!</p>
+        <p>Some initial <strong>bold</strong> text</p>
+        <p><br /></p>
+    </div>
+
+    <!-- Include the Quill library -->
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+
+    <!-- Initialize Quill editor -->
+    <script>
+        // Get all elements you want to convert to editors
+        const editorElements = ['#editor', '#editor1'];
+        
+        // Initialize Quill for all editor elements
+        const editors = editorElements.map(selector => {
+            return new Quill(selector, {
+                theme: 'snow'
+            });
+        });
+        
+        // Now you can access individual editors from the editors array
+        // editors[0] is the first editor, editors[1] is the second, etc.
+    </script>
+</body>
+</html>
